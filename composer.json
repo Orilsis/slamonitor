@@ -1,0 +1,33 @@
+{
+    "name": "slamonitor/glpi-slamonitor",
+    "description": "SLA breach report for GLPI",
+    "type": "glpi-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "SLA Monitor contributors"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.49",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "GlpiPlugin\\Slamonitor\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "stan": "phpstan analyse src --level=5",
+        "test": "phpunit --testdox"
+    }
+}
