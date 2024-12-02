@@ -1,0 +1,161 @@
+{#
+ # -------------------------------------------------------------------------
+ # SLA Monitor plugin for GLPI
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of SLA Monitor.
+ #
+ # SLA Monitor is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 2 of the License, or
+ # (at your option) any later version.
+ #
+ # @copyright Copyright (C) 2023-2026 SLA Monitor contributors
+ # @license   GPLv2+ https://www.gnu.org/licenses/gpl-2.0.html
+ # -------------------------------------------------------------------------
+ #}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" action="{{ base_url }}" class="row g-2 align-items-end">
+            <input type="hidden" name="sort" value="{{ criteria.sort }}">
+            <input type="hidden" name="order" value="{{ criteria.order }}">
+            <input type="hidden" name="entity" value="{{ criteria.entity }}">
+
+            <div class="col-sm-4">
+                <label class="form-label" for="slamonitor-search">{{ __('Title') }}</label>
+                <input type="text" class="form-control" id="slamonitor-search"
+                       name="search" value="{{ criteria.search }}">
+            </div>
+
+            <div class="col-sm-3">
+                <label class="form-label" for="slamonitor-status">{{ __('Status') }}</label>
+                <select class="form-select" id="slamonitor-status" name="status">
+                    <option value="">{{ __('All') }}</option>
+                    {% for value, label in statuses %}
+                        <option value="{{ value }}"
+                            {{ criteria.status is not null and criteria.status == value ? 'selected' : '' }}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-sm-2">
+                <label class="form-label" for="slamonitor-period">{{ __('Days') }}</label>
+                <input type="number" min="1" max="3650" class="form-control"
+                       id="slamonitor-period" name="period" value="{{ criteria.period }}">
+            </div>
+
+            <div class="col-sm-2">
+                <label class="form-check">
+                    <input type="checkbox" class="form-check-input" name="breached_only" value="1"
+                           {{ criteria.breached_only ? 'checked' : '' }}>
+                    <span class="form-check-label">{{ __('Breached only', 'slamonitor') }}</span>
+                </label>
+            </div>
+
+            <div class="col-sm-1">
+                <button type="submit" class="btn btn-primary w-100">{{ __('Search') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <span class="text-muted">
+        {{ __('%d ticket(s) under an SLA', 'slamonitor')|format(total) }}
+    </span>
+    <span>
+        <a class="btn btn-sm btn-outline-secondary"
+           href="{{ export_url }}?period={{ criteria.period }}&amp;entity={{ criteria.entity }}">
+            {{ __('Export summary (CSV)', 'slamonitor') }}
+        </a>
+    </span>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover card-table">
+        <thead>
+            <tr>
+                {% for key, label in columns %}
+                    <th>
+                        <a href="{{ base_url }}?{{ criteria.toQueryString({
+                            'sort': key,
+                            'order': criteria.nextDirectionFor(key),
+                            'start': 0
+                        }) }}">
+                            {{ label }}
+                            {% if key == criteria.sort %}
+                                <i class="ti ti-chevron-{{ criteria.order|upper == 'DESC' ? 'down' : 'up' }}"></i>
+                            {% endif %}
+                        </a>
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    {% for key in columns|keys %}
+                        {% if key == 'id' %}
+                            <td>{{ row.id }}</td>
+                        {% elseif key == 'ticket' %}
+                            <td>{{ row.name }}</td>
+                        {% elseif key == 'margin' %}
+                            <td>
+                                <span class="badge bg-{{ row.margin_class }}">{{ row.margin_label }}</span>
+                            </td>
+                        {% elseif key == 'status' %}
+                            <td>{{ row.status_label }}</td>
+                        {% elseif key == 'priority' %}
+                            <td>{{ row.priority_label }}</td>
+                        {% elseif key == 'due' %}
+                            <td>{{ row.time_to_resolve }}</td>
+                        {% elseif key == 'opened' %}
+                            <td>{{ row.date }}</td>
+                        {% elseif key == 'solved' %}
+                            <td>{{ row.solvedate }}</td>
+                        {% else %}
+                            <td>{{ row[key] }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="{{ columns|length }}" class="text-center text-muted">
+                        {{ __('No ticket matches the current filters', 'slamonitor') }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if total > criteria.limit %}
+    <nav class="d-flex justify-content-center">
+        <ul class="pagination">
+            {% if criteria.offset > 0 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ base_url }}?{{ criteria.toQueryString({
+                        'start': max(0, criteria.offset - criteria.limit)
+                    }) }}">{{ __('Previous') }}</a>
+                </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">
+                    {{ criteria.offset + 1 }} - {{ min(criteria.offset + criteria.limit, total) }} / {{ total }}
+                </span>
+            </li>
+            {% if criteria.offset + criteria.limit < total %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ base_url }}?{{ criteria.toQueryString({
+                        'start': criteria.offset + criteria.limit
+                    }) }}">{{ __('Next') }}</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}

@@ -1,0 +1,31 @@
+/*
+ * -------------------------------------------------------------------------
+ * SLA Monitor plugin for GLPI
+ * -------------------------------------------------------------------------
+ *
+ * @copyright Copyright (C) 2023-2026 SLA Monitor contributors
+ * @license   GPLv2+ https://www.gnu.org/licenses/gpl-2.0.html
+ * -------------------------------------------------------------------------
+ */
+
+/* Keep the margin badges the same width so the column reads as a gauge. */
+.slamonitor-margin {
+    display: inline-block;
+    min-width: 5.5rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The sort links inherit the header colour rather than the link colour. */
+.slamonitor-report thead a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.slamonitor-report thead a:hover {
+    text-decoration: underline;
+}
+
+.slamonitor-report td {
+    vertical-align: middle;
+}
