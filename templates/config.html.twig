@@ -1,0 +1,84 @@
+{#
+ # -------------------------------------------------------------------------
+ # SLA Monitor plugin for GLPI
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of SLA Monitor.
+ #
+ # SLA Monitor is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 2 of the License, or
+ # (at your option) any later version.
+ #
+ # @copyright Copyright (C) 2023-2026 SLA Monitor contributors
+ # @license   GPLv2+ https://www.gnu.org/licenses/gpl-2.0.html
+ # -------------------------------------------------------------------------
+ #}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ __('SLA Monitor setup', 'slamonitor') }}</h3>
+    </div>
+
+    <form method="post" action="{{ action_url }}">
+        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+
+        <div class="card-body">
+            <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="warn_threshold">
+                    {{ __('"At risk" threshold (seconds)', 'slamonitor') }}
+                </label>
+                <div class="col-sm-8">
+                    <input type="number" min="0" class="form-control" id="warn_threshold"
+                           name="warn_threshold" value="{{ config.fields.warn_threshold }}">
+                    <small class="form-hint">
+                        {{ __('A ticket whose remaining margin is below this value is flagged in orange.', 'slamonitor') }}
+                    </small>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="default_period">
+                    {{ __('Default period (days)', 'slamonitor') }}
+                </label>
+                <div class="col-sm-8">
+                    <input type="number" min="1" max="3650" class="form-control" id="default_period"
+                           name="default_period" value="{{ config.fields.default_period }}">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="page_size">
+                    {{ __('Rows per page', 'slamonitor') }}
+                </label>
+                <div class="col-sm-8">
+                    <input type="number" min="10" max="200" class="form-control" id="page_size"
+                           name="page_size" value="{{ config.fields.page_size }}">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="report_entity">
+                    {{ __('Status board entity', 'slamonitor') }}
+                </label>
+                <div class="col-sm-8">
+                    <input type="number" min="0" class="form-control" id="report_entity"
+                           name="report_entity" value="{{ config.fields.report_entity }}">
+                    <small class="form-hint">
+                        {{ __('Entity id the public status board reports on (it has no session to scope by).', 'slamonitor') }}
+                    </small>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer text-end">
+            <a class="btn btn-outline-secondary" href="{{ report_url }}">{{ __('Back') }}</a>
+            <button type="submit" name="update" value="1" class="btn btn-primary">
+                {{ _x('button', 'Save') }}
+            </button>
+        </div>
+    </form>
+</div>
