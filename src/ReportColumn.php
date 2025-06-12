@@ -44,11 +44,11 @@ final class ReportColumn
     public const DEFAULT_ORDER = 'ASC';
 
     /**
-     * Known columns: key => SQL expression.
+     * Built-in columns: key => SQL expression.
      *
      * @var array<string,string>
      */
-    private const COLUMNS = [
+    private const BUILTIN = [
         'id'        => 't.id',
         'ticket'    => 't.name',
         'entity'    => 'e.completename',
@@ -104,13 +104,42 @@ final class ReportColumn
     }
 
     /**
+     * Site-specific columns declared by the local administrator.
+     *
+     * They let an installation surface fields added by another plugin (Fields,
+     * Additional Fields, ...) or by a local SQL view without having to patch
+     * this plugin. The definitions live in the plugin configuration, which
+     * requires the UPDATE right on the plugin to change.
+     *
+     * @return array<string,string> key => SQL expression
+     */
+    public static function custom(): array
+    {
+        $raw     = (string) (Config::getInstance()->fields['extra_columns'] ?? '{}');
+        $decoded = json_decode($raw, true);
+
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        $columns = [];
+        foreach ($decoded as $key => $expression) {
+            if (is_string($key) && is_string($expression) && $expression !== '') {
+                $columns[$key] = $expression;
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
      * Every column the report knows about.
      *
      * @return array<string,string> key => SQL expression
      */
     public static function all(): array
     {
-        return self::COLUMNS;
+        return self::BUILTIN + self::custom();
     }
 
     /**
@@ -120,11 +149,11 @@ final class ReportColumn
      */
     public static function displayed(): array
     {
-        return self::DISPLAYED;
+        return array_merge(self::DISPLAYED, array_keys(self::custom()));
     }
 
     /**
-     * Label of a column.
+     * Label of a column, falling back on the raw key for the custom ones.
      */
     public static function label(string $key): string
     {
@@ -138,24 +167,33 @@ final class ReportColumn
      */
     public static function selectExpression(string $key): string
     {
-        if (!isset(self::COLUMNS[$key])) {
+        $columns = self::all();
+
+        if (!isset($columns[$key])) {
             throw new InvalidArgumentException(
                 sprintf('Unknown report column "%s"', $key)
             );
         }
 
-        return self::COLUMNS[$key];
+        return $columns[$key];
     }
 
     /**
      * SQL expression to sort on for a given column key.
      *
-     * Unknown keys fall back on the default sort rather than reaching the
-     * query, so a hand-edited URL cannot influence the ORDER BY clause.
+     * Built-in columns are resolved through the static map above. Any other key
+     * designates one of the custom columns returned by {@see self::custom()};
+     * those definitions are read from the plugin configuration, which is only
+     * writable by a profile holding the UPDATE right, so the expression they
+     * carry is used as provided.
      */
     public static function sortExpression(string $key): string
     {
-        return self::COLUMNS[$key] ?? self::COLUMNS[self::DEFAULT_SORT];
+        if (isset(self::BUILTIN[$key])) {
+            return self::BUILTIN[$key];
+        }
+
+        return $key;
     }
 
     /**

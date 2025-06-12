@@ -105,6 +105,12 @@ final class ReportQuery
             self::marginExpression() . ' AS margin',
         ];
 
+        // Site-specific columns declared in the plugin configuration are
+        // selected under their own key so the template can render them.
+        foreach (array_keys(ReportColumn::custom()) as $key) {
+            $columns[] = ReportColumn::selectExpression($key) . ' AS ' . $key;
+        }
+
         return implode(', ', $columns);
     }
 

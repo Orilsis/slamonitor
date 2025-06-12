@@ -72,6 +72,19 @@
                 </div>
             </div>
 
+            <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="extra_columns">
+                    {{ __('Site-specific columns', 'slamonitor') }}
+                </label>
+                <div class="col-sm-8">
+                    <textarea class="form-control font-monospace" rows="4" id="extra_columns"
+                              name="extra_columns">{{ config.fields.extra_columns }}</textarea>
+                    <small class="form-hint">
+                        {{ __('JSON object mapping a column key to the SQL expression it stands for, for fields added by another plugin. "t" is glpi_tickets. Example:', 'slamonitor') }}
+                        <code>{"location": "(SELECT completename FROM glpi_locations WHERE id = t.locations_id)"}</code>
+                    </small>
+                </div>
+            </div>
         </div>
 
         <div class="card-footer text-end">

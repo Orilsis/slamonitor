@@ -81,6 +81,7 @@ class Config extends CommonDBTM
             'default_period' => 30,
             'page_size'      => 25,
             'report_entity'  => 0,
+            'extra_columns'  => '{}',
         ];
     }
 
@@ -127,6 +128,9 @@ class Config extends CommonDBTM
             }
         }
 
+        if (isset($input['extra_columns'])) {
+            $input['extra_columns'] = self::normalizeExtraColumns((string) $input['extra_columns']);
+        }
 
         return $input;
     }
