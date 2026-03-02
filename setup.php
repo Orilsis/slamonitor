@@ -29,7 +29,7 @@ use Glpi\Plugin\Hooks;
 use GlpiPlugin\Slamonitor\Profile;
 use GlpiPlugin\Slamonitor\SlaMonitor;
 
-define('PLUGIN_SLAMONITOR_VERSION', '1.4.0');
+define('PLUGIN_SLAMONITOR_VERSION', '1.4.1');
 
 /**
  * Range of GLPI versions this release has been validated against.
